@@ -1,0 +1,14 @@
+# Cache files
+__pycache__/
+.pyc
+.DS_Store
+
+# Text editor remnants
+.vscode/
+.vs/
+.idea/
+cmake-build-debug
+venv/
+
+# Project-specific ignores
+compiled

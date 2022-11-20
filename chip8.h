@@ -20,6 +20,9 @@
 #define STACK_SIZE 16       //levels
 #define NUM_KEYS 16
 #define FONTSET_SIZE 80
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 32
+
 
 uint8_t memory[TOTAL_MEMORY];
 // registers
@@ -36,8 +39,14 @@ uint8_t delayT;
 // sound timer                   
 uint8_t soundT;
 uint8_t keypad[NUM_KEYS];
-uint32_t screen[64*32];    //using uint32_t instead of uint16_t for better sdl compatibility
+uint32_t screen[SCREEN_WIDTH * SCREEN_HEIGHT]; //using uint32_t instead of uint16_t for better sdl compatibility
+
+
+
+uint32_t screenPitch = (sizeof(screen[0]) * SCREEN_WIDTH);
 uint16_t opcode;
+char *buffer = NULL;
+uint8_t draw = 0;
 
 uint8_t fontset[FONTSET_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -58,4 +67,5 @@ uint8_t fontset[FONTSET_SIZE] = {
 	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
+int run = 1;
 
