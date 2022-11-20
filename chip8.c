@@ -1,13 +1,5 @@
 #include "chip8.h"
 
-// What to do now:
-// fetch the opcode from memory
-// decode op code
-// execute opcode
-
-// Just found this amazing guide on fetching, decoding and executiong of opcodes:
-// it also shows how to initialize the system etc.
-// https://multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
 
 int initialize() {
     pc = START_ADDRESS;
