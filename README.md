@@ -6,7 +6,7 @@
 
 
 ## To build run: 
-    git clone https://github.com/Kenkrik/chip-8
+    git clone https://github.com/Kenkrik/CHIP-8-Emulator
     cd chip-8
     gcc -lSDL2 -o CHIP-8 chip8.c
 
