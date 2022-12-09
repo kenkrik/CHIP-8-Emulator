@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     loadFontset();
     loadRom(argc, argv);
 
-    uint8_t N, NN, NNN, Vx;
+    uint16_t N, NN, NNN, Vx;
     N = NN = NN = Vx = 0;
 
     if (run == 0) {
@@ -222,8 +222,9 @@ int main(int argc, char *argv[]) {
             case 0xA000:
                 // 0xANNN
                 // IRegister = NNN
-
+                printf("%x\n",opcode & 0x0FFF );
                 NNN = opcode & 0x0FFF;
+                printf("%x\n", NNN);
                 IRegister = NNN;
 
                 break;
@@ -281,6 +282,38 @@ int main(int argc, char *argv[]) {
             SDL_RenderPresent(renderer);
             draw = 0;
         }
+
+
+        while(runNextCycle != 1) {
+            SDL_Event event;
+
+            while (SDL_PollEvent(&event)) {
+                switch (event.type) {
+                    case SDL_QUIT:
+                        runNextCycle = 1;
+                        run = 0;
+                        break;
+                    case SDL_KEYDOWN:
+                        switch (event.key.keysym.scancode) {
+                            case SDL_SCANCODE_N:
+                                runNextCycle = 1;
+                                break;
+                            case SDL_SCANCODE_P:
+                                printf("The index register is: %x\n", IRegister);
+                                printf("The V%x register is: %x\n",registers[Vx], Vx);
+
+                                break;
+                            default:
+                                break;
+                        }
+
+                    default:
+                        break;
+                }
+            }  
+        }
+        runNextCycle = 0;
+
 
     }  // while
 

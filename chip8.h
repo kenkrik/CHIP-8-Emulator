@@ -23,6 +23,10 @@
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
 
+// Debug features
+int runNextCycle = 0;
+
+
 
 uint8_t memory[TOTAL_MEMORY];
 // registers
