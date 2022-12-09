@@ -24,7 +24,8 @@
 #define SCREEN_HEIGHT 32
 
 // Debug features
-int runNextCycle = 0;
+const int debug = 0;
+int runNextCycle = 1;
 
 
 

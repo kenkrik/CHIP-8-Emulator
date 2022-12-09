@@ -98,6 +98,9 @@ int main(int argc, char *argv[]) {
 
     // one cycle
     while (run == 1) {
+        if (debug == 1) {
+            runNextCycle = 0;
+        }
         // increment program counter
         pc += 2;
         opcode = memory[pc] << 8 | memory[pc + 1];
@@ -295,6 +298,10 @@ int main(int argc, char *argv[]) {
                         break;
                     case SDL_KEYDOWN:
                         switch (event.key.keysym.scancode) {
+                            case SDL_SCANCODE_ESCAPE:
+                                runNextCycle = 1;
+                                run = 0;
+                                break;
                             case SDL_SCANCODE_N:
                                 runNextCycle = 1;
                                 break;
@@ -312,7 +319,6 @@ int main(int argc, char *argv[]) {
                 }
             }  
         }
-        runNextCycle = 0;
 
 
     }  // while
