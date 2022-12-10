@@ -12,3 +12,4 @@ venv/
 
 # Project-specific ignores
 compiled
+CHIP-8
