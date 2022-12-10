@@ -9,7 +9,7 @@
 
 ## To build run: 
     git clone https://github.com/Kenkrik/CHIP-8-Emulator
-    cd chip-8
+    cd CHIP-8-Emulator
     gcc -lSDL2 -o CHIP-8 chip8.c
 
 ## Run the emulator from terminal and choose the specific ROM file:
