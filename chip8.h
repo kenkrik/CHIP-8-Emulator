@@ -23,7 +23,7 @@
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
 
-// Debug features
+// Debug features, 0 off, 1 on
 const int debug = 0;
 int runNextCycle = 1;
 
