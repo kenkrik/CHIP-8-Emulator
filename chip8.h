@@ -1,12 +1,9 @@
-//  sources:
-//  https://austinmorlan.com/posts/chip8_emulator/
-
-
-
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdlib.h> //malloc etc
+#include <stdlib.h> // malloc etc
+#include <time.h> 	// required for random number generation
+
 
 #include <SDL2/SDL.h>
 
@@ -24,8 +21,12 @@
 #define SCREEN_HEIGHT 32
 
 // Debug features, 0 off, 1 on
-const int debug = 0;
+int debug = 1;
 int runNextCycle = 1;
+
+uint16_t address, Vx, Vy = 0;
+
+SDL_Event event;
 
 
 

@@ -6,6 +6,7 @@ int initialize() {
     opcode = 0;
     IRegister = 0;
     sp = 0;
+    srand(time(NULL));
 
     // cl display
     // cl stack
@@ -58,6 +59,8 @@ int loadRom(int argc, char *argv[]) {
     free(buffer);
 }
 
+
+
 void loadFontset() {
     for (int i = 0; i < FONTSET_SIZE; ++i) {
         memory[FONTSET_START_ADDRESS + i] = fontset[i];
@@ -69,7 +72,7 @@ const int windowXSize = 640;
 const int windowYSize = 320;
 int frame = 0;
 int deltaFrame = 0;
-const int FPS = 60;
+const int FPS = 60 * 5;
 // Required lenght of one frame in order to archieve stabel FSP count
 int frameLenght = 1000 / FPS;
 int currentFrame = 0;
@@ -88,8 +91,6 @@ int main(int argc, char *argv[]) {
     loadFontset();
     loadRom(argc, argv);
 
-    uint16_t address, Vx;
-    address = Vx = 0;
 
     if (run == 0) {
         return 0;
@@ -98,7 +99,6 @@ int main(int argc, char *argv[]) {
 
     // one cycle
     while (run == 1) {
-
         
         if (debug == 1) {
             runNextCycle = 0;
@@ -134,7 +134,6 @@ int main(int argc, char *argv[]) {
         currentFrame++;
         frame = SDL_GetTicks();
 
-        SDL_Event event;
 
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -146,10 +145,156 @@ int main(int argc, char *argv[]) {
                         case SDL_SCANCODE_ESCAPE:
                             run = 0;
                             break;
+                        case SDL_SCANCODE_RETURN:
+                            if (debug == 1) {
+                                debug = 0;
+                            }
+                            else {
+                                debug = 1;
+                            }
+                            break;
+                        case SDL_SCANCODE_1:
+                            //runNextCycle = 1;
+                            keypad[1] = 1;
+                            break;
+                        case SDL_SCANCODE_2:
+                            //runNextCycle = 1;
+                            keypad[2] = 1;
+                            break;
+                        case SDL_SCANCODE_3:
+                            //runNextCycle = 1;
+                            keypad[3] = 1;
+                            break;
+                        case SDL_SCANCODE_4:
+                            //runNextCycle = 1;
+                            keypad[0xC] = 1;
+                            break;
+                        case SDL_SCANCODE_Q:
+                            //runNextCycle = 1;
+                            keypad[4] = 1;
+                            break;
+                        case SDL_SCANCODE_W:
+                            //runNextCycle = 1;
+                            keypad[5] = 1;
+                            break;
+                        case SDL_SCANCODE_E:
+                            //runNextCycle = 1;
+                            keypad[6] = 1;
+                            break;
+                        case SDL_SCANCODE_R:
+                            //runNextCycle = 1;
+                            keypad[0xD] = 1;
+                            break;
+                        case SDL_SCANCODE_A:
+                            //runNextCycle = 1;
+                            keypad[7] = 1;
+                            break;
+                        case SDL_SCANCODE_S:
+                            //runNextCycle = 1;
+                            keypad[8] = 1;
+                            break;
+                        case SDL_SCANCODE_D:
+                            //runNextCycle = 1;
+                            keypad[9] = 1;
+                            break;
+                        case SDL_SCANCODE_F:
+                            //runNextCycle = 1;
+                            keypad[0xE] = 1;
+                            break;
+                        case SDL_SCANCODE_Z:
+                            //runNextCycle = 1;
+                            keypad[0xA] = 1;
+                            break;
+                        case SDL_SCANCODE_X:
+                            //runNextCycle = 1;
+                            keypad[0] = 1;
+                            break;
+                        case SDL_SCANCODE_C:
+                            //runNextCycle = 1;
+                            keypad[0xB] = 1;
+                            break;
+                        case SDL_SCANCODE_V:
+                            //runNextCycle = 1;
+                            keypad[0xF] = 1;
+                            break;
 
                         default:
                             break;
                     }
+
+                case SDL_KEYUP:
+                    switch (event.key.keysym.scancode) {
+                        case SDL_SCANCODE_1:
+                            //runNextCycle = 1;
+                            keypad[1] = 0;
+                            break;
+                        case SDL_SCANCODE_2:
+                            //runNextCycle = 1;
+                            keypad[2] = 0;
+                            break;
+                        case SDL_SCANCODE_3:
+                            //runNextCycle = 1;
+                            keypad[3] = 0;
+                            break;
+                        case SDL_SCANCODE_4:
+                            //runNextCycle = 1;
+                            keypad[0xC] = 0;
+                            break;
+                        case SDL_SCANCODE_Q:
+                            //runNextCycle = 1;
+                            keypad[4] = 0;
+                            break;
+                        case SDL_SCANCODE_W:
+                            //runNextCycle = 1;
+                            keypad[5] = 0;
+                            break;
+                        case SDL_SCANCODE_E:
+                            //runNextCycle = 1;
+                            keypad[6] = 0;
+                            break;
+                        case SDL_SCANCODE_R:
+                            //runNextCycle = 1;
+                            keypad[0xD] = 0;
+                            break;
+                        case SDL_SCANCODE_A:
+                            //runNextCycle = 1;
+                            keypad[7] = 0;
+                            break;
+                        case SDL_SCANCODE_S:
+                            //runNextCycle = 1;
+                            keypad[8] = 0;
+                            break;
+                        case SDL_SCANCODE_D:
+                            //runNextCycle = 1;
+                            keypad[9] = 0;
+                            break;
+                        case SDL_SCANCODE_F:
+                            //runNextCycle = 1;
+                            keypad[0xE] = 0;
+                            break;
+                        case SDL_SCANCODE_Z:
+                            //runNextCycle = 1;
+                            keypad[0xA] = 0;
+                            break;
+                        case SDL_SCANCODE_X:
+                            //runNextCycle = 1;
+                            keypad[0] = 0;
+                            break;
+                        case SDL_SCANCODE_C:
+                            //runNextCycle = 1;
+                            keypad[0xB] = 0;
+                            break;
+                        case SDL_SCANCODE_V:
+                            //runNextCycle = 1;
+                            keypad[0xF] = 0;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+
+
 
                 default:
                     break;
@@ -231,7 +376,14 @@ int main(int argc, char *argv[]) {
             case 0x3000:
                 Vx = (opcode & 0x0F00) >> 8;
                 int value = opcode & 0x00FF;
-                if (registers[Vx] = value) {
+                if (registers[Vx] == value) {
+                    pc += 2;
+                }
+                break;
+
+            case 0x4000:
+                Vx = (opcode & 0x0F00) >> 8;
+                if (registers[Vx] != (opcode & 0x00FF)) {
                     pc += 2;
                 }
                 break;
@@ -255,11 +407,83 @@ int main(int argc, char *argv[]) {
 
                 break;
 
+            case 0x8000:
+                switch (opcode & 0x000F) {
+                    case 0x0000:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+                        
+                        registers[Vx] = registers[Vy];
+                
+                        break;
+                    case 0x0002:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+
+                        registers[Vx] = registers[Vx] & registers[Vy];
+
+                        break;
+
+                    case 0x0004:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+
+                        int sum = registers[Vx] + registers[Vy];
+
+                        if (sum > 255) {
+                            registers[0xF] = 1;
+                        }
+                        else {
+                            registers[0xF] = 0;
+                        }
+                        registers[Vx] = sum & 0xFF;
+
+                        break;
+                    
+                    case 0x0005:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+
+                        if (registers[Vx] > registers[Vy]) {
+                            registers[0xF] = 1;
+                        } 
+                        else {
+                            registers[0xF] = 0;
+                        }
+
+                        registers[Vx] -= registers[Vy];
+
+                        break;
+                    
+                    case 0x0008:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        
+                        // not sure if this is the correct way to write this
+                        registers[0xF] = registers[Vx] >> 7;
+                        printf("The rg Vx shifted by 7 to the right: %x\n",registers[Vx] >> 7);
+                        printf("This opcode might not be working properly\n");
+                        registers[Vx] = registers[Vx] << 1;
+
+                        break;
+            
+                    default:
+                        printf("Oopsie, unknown opcode(%X)\n\n", opcode);
+                        break;
+                    
+                }
+                break;
+
             case 0xA000:
                 // 0xANNN
                 // IRegister = NNN
                 address = opcode & 0x0FFF;
                 IRegister = address;
+
+                break;
+            case 0xC000:
+                Vx = (opcode & 0x0F00) >> 8;
+                int randomNumber = rand() % 255;
+                registers[Vx] = randomNumber & (opcode & 0x00FF);
 
                 break;
 
@@ -299,98 +523,130 @@ int main(int argc, char *argv[]) {
 
                 break;
 
+            case 0xE000:
+                switch (opcode & 0x00FF) {
+                    case 0x009E:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        
+                        if (keypad[registers[Vx]]) {
+                            pc += 2;
+                        }
+
+                        break;
+                    
+                    case 0x00A1:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        
+                        if (!keypad[registers[Vx]]) {
+                            pc += 2;
+                        }
+
+                        break;
+                    
+                    default:
+                        printf("Oopsie, unknown opcode(%X)\n\n", opcode);
+                        break;
+                }
+                break;
+
+
             case 0xF000:
                 switch (opcode & 0x00FF) {
 
                     case 0x000A: 
-                        runNextCycle = 0; 
-                        while(runNextCycle != 1) {
+                        Vx = opcode & 0x0F00 >> 8;
+                        //runNextCycle = 0; 
+                        while(debug == 1) {
                             while (SDL_PollEvent(&event)) {
                                 switch (event.type) {
                                     case SDL_QUIT:
-                                        runNextCycle = 1;
+                                        //runNextCycle = 1;
                                         run = 0;
                                         break;
                                     case SDL_KEYDOWN:
                                         switch (event.key.keysym.scancode) {
                                             case SDL_SCANCODE_ESCAPE:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 run = 0;
                                                 break;
                                             case SDL_SCANCODE_1:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 1;
                                                 break;
                                             case SDL_SCANCODE_2:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 2;
                                                 break;
                                             case SDL_SCANCODE_3:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 3;
                                                 break;
                                             case SDL_SCANCODE_4:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 'C';
                                                 break;
                                             case SDL_SCANCODE_Q:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 4;
                                                 break;
                                             case SDL_SCANCODE_W:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 5;
                                                 break;
                                             case SDL_SCANCODE_E:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 6;
                                                 break;
                                             case SDL_SCANCODE_R:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 'D';
                                                 break;
                                             case SDL_SCANCODE_A:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 7;
                                                 break;
                                             case SDL_SCANCODE_S:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 8;
                                                 break;
                                             case SDL_SCANCODE_D:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 9;
                                                 break;
                                             case SDL_SCANCODE_F:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 'E';
                                                 break;
                                             case SDL_SCANCODE_Z:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 'A';
                                                 break;
                                             case SDL_SCANCODE_X:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 0;
                                                 break;
                                             case SDL_SCANCODE_C:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 'B';
                                                 break;
                                             case SDL_SCANCODE_V:
-                                                runNextCycle = 1;
+                                                //runNextCycle = 1;
                                                 registers[Vx] = 'F';
                                                 break;
                                             
                                             default:
+                                                pc -= 2;
                                                 break;
                                         }
 
                                     default:
+                                        pc -= 2;
                                         break;
                                 }
 
                             }
+                            delayT -= 1;
+                            soundT -= 1;
                             // !!!!!!!!!!!! increase the delay and sound timer !!!!!!!!!
                             // dont increase pc
                         
@@ -398,16 +654,19 @@ int main(int argc, char *argv[]) {
                         break;
 
                     case 0x0033:
+                        Vx = opcode & 0x0F00 >> 8;
                         int value = registers[Vx];
-                        //ones
-                        //printf("value in vx: %d\n", value) ;
+                        // ones
                         memory[IRegister + 2] = value % 10;
+                        //printf("value in memory at address I + 2 (ones): %d\n", value % 10) ;
                         value /= 10;
-                        //tens
+                        // tens
                         memory[IRegister + 1] = value % 10;
+                        //printf("value in memory at address I + 1 (tens): %d\n", value % 10) ;
                         value /= 10;
-                        //hundreds
+                        // hundreds
                         memory[IRegister] = value % 10;
+                        //printf("value in memory at address I + 0 (hundreds): %d\n", value % 10) ;
 
                         //printf("IReg %x IReg + 1 %x IReg + 2 %x\n", memory[IRegister], memory[IRegister + 1], memory[IRegister + 2]) ;
                         
@@ -427,9 +686,18 @@ int main(int argc, char *argv[]) {
                         Vx = (opcode & 0x0F00) >> 8;
                         delayT = registers[Vx];
                         break;
+
+                    case 0x0018:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        soundT = registers[Vx];
+                        break;
                     case 0x0007:
                         Vx = (opcode & 0x0F00) >> 8;
                         registers[Vx] = delayT;
+                        break;
+                    case 0x001E:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        IRegister += registers[Vx];
                         break;
 
 
@@ -458,7 +726,6 @@ int main(int argc, char *argv[]) {
 
 
         while(runNextCycle != 1) {
-            SDL_Event event;
 
             while (SDL_PollEvent(&event)) {
                 switch (event.type) {
@@ -475,11 +742,42 @@ int main(int argc, char *argv[]) {
                             case SDL_SCANCODE_N:
                                 runNextCycle = 1;
                                 break;
+                            case SDL_SCANCODE_RETURN:
+                                if (debug == 1) {
+                                    debug = 0;
+                                }
+                                else {
+                                    debug = 1;
+                                }
+                                runNextCycle = 1;
+                                break;
                             case SDL_SCANCODE_P:
                                 printf("\nThe index register is: %x\n", IRegister);
                                 printf("The Vx register V%x is: %x\n",Vx, registers[Vx]);
                                 printf("The stack pointer is: %x\n", sp);
-                                printf("The program counter is: %x\n\n", pc);
+                                printf("The program counter is: %x\n", pc);
+                                printf("The delay timer is: %x\n", delayT);
+                                printf("The sound timer is: %x\n\n", soundT);
+
+                                printf("The V0 register is: %x\n",registers[0x0]);
+                                printf("The V1 register is: %x\n",registers[0x1]);
+                                printf("The V2 register is: %x\n",registers[0x2]);
+                                printf("The V3 register is: %x\n",registers[0x3]);
+                                printf("The V4 register is: %x\n",registers[0x4]);
+                                printf("The V5 register is: %x\n",registers[0x5]);
+                                printf("The V6 register is: %x\n",registers[0x6]);
+                                printf("The V7 register is: %x\n",registers[0x7]);
+                                printf("The V8 register is: %x\n",registers[0x8]);
+                                printf("The V9 register is: %x\n",registers[0x9]);
+                                printf("The VA register is: %x\n",registers[0xA]);
+                                printf("The VB register is: %x\n",registers[0xB]);
+                                printf("The VC register is: %x\n",registers[0xC]);
+                                printf("The VD register is: %x\n",registers[0xD]);
+                                printf("The VE register is: %x\n",registers[0xE]);
+                                printf("The VF register is: %x\n",registers[0xF]);
+                                
+                                printf("\n");
+
 
                                 break;
                             default:
