@@ -368,6 +368,7 @@ int main(int argc, char *argv[]) {
 
             case 0x2000:
                 stack[sp] = pc;
+                printf("stack[sp]: %x\n", stack[sp]);
                 sp += 1;
                 address = opcode & 0x0FFF;
                 pc = address;
@@ -454,6 +455,7 @@ int main(int argc, char *argv[]) {
                         registers[Vx] -= registers[Vy];
 
                         break;
+
                     
                     case 0x0008:
                         Vx = (opcode & 0x0F00) >> 8;
@@ -477,6 +479,7 @@ int main(int argc, char *argv[]) {
                 // 0xANNN
                 // IRegister = NNN
                 address = opcode & 0x0FFF;
+                printf("address: %x\n", address);
                 IRegister = address;
 
                 break;
@@ -484,15 +487,18 @@ int main(int argc, char *argv[]) {
                 Vx = (opcode & 0x0F00) >> 8;
                 int randomNumber = rand() % 255;
                 registers[Vx] = randomNumber & (opcode & 0x00FF);
-
                 break;
 
             case 0xD000:
                 // 0xDXYN
                 // draws a sprite at (Vx, Vy, N)
                 draw = 1;
-                uint8_t Vx = (opcode & 0x0F00) >> 8;
-                uint8_t Vy = (opcode & 0x00F0) >> 4;
+                //uint8_t Vx = (opcode & 0x0F00) >> 8;
+                //uint8_t Vy = (opcode & 0x00F0) >> 4;
+                
+                Vx = (opcode & 0x0F00) >> 8;
+                Vy = (opcode & 0x00F0) >> 4;
+                
                 // sprite height - N
                 uint8_t height = (opcode & 0x000F);
 
@@ -554,9 +560,9 @@ int main(int argc, char *argv[]) {
                 switch (opcode & 0x00FF) {
 
                     case 0x000A: 
-                        Vx = opcode & 0x0F00 >> 8;
+                        Vx = (opcode & 0x0F00) >> 8;
                         //runNextCycle = 0; 
-                        while(debug == 1) {
+                        //while(debug == 1) {
                             while (SDL_PollEvent(&event)) {
                                 switch (event.type) {
                                     case SDL_QUIT:
@@ -650,37 +656,42 @@ int main(int argc, char *argv[]) {
                             // !!!!!!!!!!!! increase the delay and sound timer !!!!!!!!!
                             // dont increase pc
                         
-                        }  
+                        //}  
                         break;
 
                     case 0x0033:
-                        Vx = opcode & 0x0F00 >> 8;
+                        Vx = (opcode & 0x0F00) >> 8;
                         int value = registers[Vx];
+                        printf("value in Vx%x: %d\n",Vx, registers[Vx]);
                         // ones
                         memory[IRegister + 2] = value % 10;
-                        //printf("value in memory at address I + 2 (ones): %d\n", value % 10) ;
+                        printf("value in memory at address I + 2 (ones): %d\n", memory[IRegister + 2]) ;
                         value /= 10;
                         // tens
                         memory[IRegister + 1] = value % 10;
-                        //printf("value in memory at address I + 1 (tens): %d\n", value % 10) ;
+                        printf("value in memory at address I + 1 (tens): %d\n", memory[IRegister + 1]) ;
                         value /= 10;
                         // hundreds
                         memory[IRegister] = value % 10;
-                        //printf("value in memory at address I + 0 (hundreds): %d\n", value % 10) ;
+                        printf("value in memory at address I + 0 (hundreds): %d\n", memory[IRegister]) ;
 
                         //printf("IReg %x IReg + 1 %x IReg + 2 %x\n", memory[IRegister], memory[IRegister + 1], memory[IRegister + 2]) ;
-                        
                         break;
+
                     case 0x0065:
                         Vx = (opcode & 0x0F00) >> 8;
+                        printf("Fx65 vx is: %x\n", Vx);
                         for (int i = 0; i <= Vx; i++) {
                             registers[i] = memory[IRegister + i];
+                            printf ("memory[ireg]: %d\n", registers[i]);
                         }
+                        printf("Fx65 vx after loop is: %x\n", Vx);
                         break;
+
                     case 0x0029:
                         Vx = (opcode & 0x0F00) >> 8;
                         // multiplid by 5 because each charecter has the size of 5 bytes
-                        IRegister = FONTSET_START_ADDRESS + 5 * registers[Vx];
+                        IRegister = FONTSET_START_ADDRESS + (5 * registers[Vx]);
                         break;
                     case 0x0015:
                         Vx = (opcode & 0x0F00) >> 8;
@@ -710,9 +721,11 @@ int main(int argc, char *argv[]) {
             default:
                 printf("\nUnknown group: %X\n", (opcode & 0xF000) >> 12);
                 printf("Oopsie, unknown opcode(%X)\n\n", opcode);
+                break;
 
         }  // switch
         
+            printf("vx test: %x\n", Vx);
         //draw = 1;
         //if (draw) {
             SDL_UpdateTexture(texture, NULL, screen, screenPitch);
@@ -726,7 +739,6 @@ int main(int argc, char *argv[]) {
 
 
         while(runNextCycle != 1) {
-
             while (SDL_PollEvent(&event)) {
                 switch (event.type) {
                     case SDL_QUIT:
