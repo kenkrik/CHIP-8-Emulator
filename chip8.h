@@ -24,7 +24,7 @@
 int debug = 1;
 int runNextCycle = 1;
 
-uint16_t address, Vx, Vy = 0;
+uint16_t address, Vx, Vy, value = 0;
 
 
 

@@ -67,6 +67,38 @@ void loadFontset() {
     }
 }
 
+void debugInfo() {
+    printf("\nThe index register is: %x\n", IRegister);
+    printf("The Vx register V%x is: %x\n",Vx, registers[Vx]);
+    printf("The Vy register V%x is: %x\n",Vy, registers[Vy]);
+    printf("The stack pointer is: %x\n", sp);
+    printf("The program counter is: %x\n", pc);
+    printf("The delay timer is: %x\n", delayT);
+    printf("The sound timer is: %x\n\n", soundT);
+
+    printf("The V0 register is: %x\n",registers[0x0]);
+    printf("The V1 register is: %x\n",registers[0x1]);
+    printf("The V2 register is: %x\n",registers[0x2]);
+    printf("The V3 register is: %x\n",registers[0x3]);
+    printf("The V4 register is: %x\n",registers[0x4]);
+    printf("The V5 register is: %x\n",registers[0x5]);
+    printf("The V6 register is: %x\n",registers[0x6]);
+    printf("The V7 register is: %x\n",registers[0x7]);
+    printf("The V8 register is: %x\n",registers[0x8]);
+    printf("The V9 register is: %x\n",registers[0x9]);
+    printf("The VA register is: %x\n",registers[0xA]);
+    printf("The VB register is: %x\n",registers[0xB]);
+    printf("The VC register is: %x\n",registers[0xC]);
+    printf("The VD register is: %x\n",registers[0xD]);
+    printf("The VE register is: %x\n",registers[0xE]);
+    printf("The VF register is: %x\n",registers[0xF]);
+
+    printf("Memory 5B from 0x50: 0x%x 0x%x 0x%x 0x%x 0x%x\n", memory[0x50],memory[0x50+1],memory[0x50+2],memory[0x50+3],memory[0x50+4]);
+    
+    printf("\n");
+
+
+}
 // Declarations
 const int windowXSize = 640;
 const int windowYSize = 320;
@@ -104,6 +136,12 @@ int main(int argc, char *argv[]) {
             runNextCycle = 0;
         }
 
+        // not sure if this should be before or after pc += 2
+        opcode = memory[pc] << 8 | memory[pc + 1];
+        //printf("opcode 1 2byte: %x\n", memory[pc-2] << 8);
+        //printf("opcode 1 1byte: %x\n", memory[pc-1] << 8);
+
+        //printf("opcode fix: %x\n",opcode = memory[pc-2] << 8 | memory[pc - 1]);
 
         // increment program counter
         pc += 2;
@@ -118,7 +156,7 @@ int main(int argc, char *argv[]) {
             // beeeep 
         }
 
-        opcode = memory[pc] << 8 | memory[pc + 1];
+
 
         // Constant FPS check
         deltaFrame = SDL_GetTicks() - frame;
@@ -356,25 +394,26 @@ int main(int argc, char *argv[]) {
             case 0x1000:
                 // 0x1NNN
                 // jumps to address NNN
+                printf("NNN: %x\n", opcode & 0x0FFF);
                 address = opcode & 0x0FFF;
                 pc = address;
-                // jumps definitely shouldnt increase pc
-                pc -= 2;
+                // jumps definitely shouldnt increase pc, so yes this should be pc -= 2
+                //pc -= 2;
 
                 break;
 
             case 0x2000:
+                address = opcode & 0x0FFF;
                 stack[sp] = pc;
                 printf("stack[sp]: %x\n", stack[sp]);
                 sp += 1;
-                address = opcode & 0x0FFF;
                 pc = address;
                 break;
 
             case 0x3000:
                 Vx = (opcode & 0x0F00) >> 8;
-                int value = opcode & 0x00FF;
-                if (registers[Vx] == value) {
+                address = opcode & 0x00FF;
+                if (registers[Vx] == address) {
                     pc += 2;
                 }
                 break;
@@ -386,13 +425,20 @@ int main(int argc, char *argv[]) {
                 }
                 break;
 
+            case 0x5000:
+                Vx = (opcode & 0x0F00) >> 8;
+                Vy = (opcode & 0x00F0) >> 4;
+                if (registers[Vx] == registers[Vy]) {
+                    pc += 2;
+                }
+                break;
+
             case 0x6000:
                 // 0x6XNN
                 // Vx = NN
                 Vx = (opcode & 0x0F00) >> 8;
                 address = opcode & 0x00FF;
                 registers[Vx] = address;
-
                 break;
 
             case 0x7000:
@@ -414,6 +460,14 @@ int main(int argc, char *argv[]) {
                         registers[Vx] = registers[Vy];
                 
                         break;
+                    
+                    case 0x0001:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+
+                        registers[Vx] |= registers[Vy];
+
+                        break; 
                     case 0x0002:
                         Vx = (opcode & 0x0F00) >> 8;
                         Vy = (opcode & 0x00F0) >> 4;
@@ -421,6 +475,14 @@ int main(int argc, char *argv[]) {
                         registers[Vx] = registers[Vx] & registers[Vy];
 
                         break;
+                    
+                    case 0x0003:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+
+                        registers[Vx] ^= registers[Vy];
+
+                        break; 
 
                     case 0x0004:
                         Vx = (opcode & 0x0F00) >> 8;
@@ -453,6 +515,27 @@ int main(int argc, char *argv[]) {
 
                         break;
 
+                    case 0x0006:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        registers[0xF] = (registers[Vx] & 0x1);
+                        registers[Vx] >>= 1;
+                        break;
+
+                    case 0x0007:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        Vy = (opcode & 0x00F0) >> 4;
+
+                        if (registers[Vy] > registers[Vx]) {
+                            registers[0xF] = 1;
+                        }
+                        else {
+                            registers[0xF] = 0;
+                        }
+
+                        registers[Vx] = registers[Vy] - registers[Vx];
+
+                        break;
+
                     
                     case 0x000E:
                         Vx = (opcode & 0x0F00) >> 8;
@@ -473,14 +556,31 @@ int main(int argc, char *argv[]) {
                 }
                 break;
 
+            case 0x9000:
+                Vx = (opcode & 0x0F00) >> 8;
+                Vy = (opcode & 0x00F0) >> 4;
+
+                if (registers[Vx] != registers[Vy]) {
+                    pc += 2;
+                }
+ 
+                break;
+
             case 0xA000:
                 // 0xANNN
                 // IRegister = NNN
                 address = opcode & 0x0FFF;
                 printf("address: %x\n", address);
                 IRegister = address;
+                printf("iregister: %x\n", IRegister);
 
                 break;
+
+            case 0xB000:
+                address = opcode & 0x0FFF;
+                pc = registers[0] + address;
+                break; 
+
             case 0xC000:
                 Vx = (opcode & 0x0F00) >> 8;
                 int randomNumber = rand() % 255;
@@ -495,6 +595,8 @@ int main(int argc, char *argv[]) {
                 
                 Vx = (opcode & 0x0F00) >> 8;
                 Vy = (opcode & 0x00F0) >> 4;
+
+                //loadFontset();
                 
                 // sprite height - N
                 uint8_t height = (opcode & 0x000F);
@@ -556,7 +658,7 @@ int main(int argc, char *argv[]) {
             case 0xF000:
                 // this opcode is a broken mess and it needs to be rewritten 
                 switch (opcode & 0x00FF) {
-                    case 0x000A: 
+                    /*case 0x000A: 
                         Vx = (opcode & 0x0F00) >> 8;
                         //runNextCycle = 0; 
                         //while(debug == 1) {
@@ -667,10 +769,13 @@ int main(int argc, char *argv[]) {
                         
                         //}  
                         break;
+                    */
+                    // end of case
+
 
                     case 0x0033:
                         Vx = (opcode & 0x0F00) >> 8;
-                        int value = registers[Vx];
+                        value = registers[Vx];
                         printf("value in Vx%x: %d\n",Vx, registers[Vx]);
                         // ones
                         memory[IRegister + 2] = value % 10;
@@ -687,7 +792,17 @@ int main(int argc, char *argv[]) {
                         //printf("IReg %x IReg + 1 %x IReg + 2 %x\n", memory[IRegister], memory[IRegister + 1], memory[IRegister + 2]) ;
                         break;
 
+                    case 0x0055:
+                        Vx = (opcode & 0x0F00) >> 8;
+                        
+                        for (int i = 0; i <= Vx; i++) {
+                            memory[IRegister + i] = registers[i];
+                        }
+                        
+                        break;
+
                     case 0x0065:
+
                         Vx = (opcode & 0x0F00) >> 8;
                         printf("Fx65 vx is: %x\n", Vx);
                         for (int i = 0; i <= Vx; i++) {
@@ -695,12 +810,27 @@ int main(int argc, char *argv[]) {
                             printf ("memory[ireg]: %d\n", registers[i]);
                         }
                         printf("Fx65 vx after loop is: %x\n", Vx);
+
+                        /*
+                        // old games implementation
+                        Vx = (opcode & 0x0F00) >> 8;
+                        printf("Fx65 vx is: %x\n", Vx);
+                        for (int i = 0; i <= Vx; i++, IRegister++) {
+                            registers[i] = memory[IRegister];
+                            printf ("memory[ireg]: %d\n", registers[i]);
+                        }
+                        printf("Fx65 vx after loop is: %x\n", Vx);
+                        */
+
+
+
                         break;
 
                     case 0x0029:
                         Vx = (opcode & 0x0F00) >> 8;
                         // multiplid by 5 because each charecter has the size of 5 bytes
-                        IRegister = FONTSET_START_ADDRESS + (5 * registers[Vx]);
+                        value = registers[Vx];
+                        IRegister = FONTSET_START_ADDRESS + (5 * value);
                         break;
                     case 0x0015:
                         Vx = (opcode & 0x0F00) >> 8;
@@ -746,6 +876,7 @@ int main(int argc, char *argv[]) {
 
         //printf("Currently pressed keys: %d", *numkeys);
 
+        debugInfo();
 
         while(runNextCycle != 1) {
             while (SDL_PollEvent(&event)) {
@@ -777,32 +908,7 @@ int main(int argc, char *argv[]) {
                                 IRegister = 0;
                                 break;
                             case SDL_SCANCODE_P:
-                                printf("\nThe index register is: %x\n", IRegister);
-                                printf("The Vx register V%x is: %x\n",Vx, registers[Vx]);
-                                printf("The stack pointer is: %x\n", sp);
-                                printf("The program counter is: %x\n", pc);
-                                printf("The delay timer is: %x\n", delayT);
-                                printf("The sound timer is: %x\n\n", soundT);
-
-                                printf("The V0 register is: %x\n",registers[0x0]);
-                                printf("The V1 register is: %x\n",registers[0x1]);
-                                printf("The V2 register is: %x\n",registers[0x2]);
-                                printf("The V3 register is: %x\n",registers[0x3]);
-                                printf("The V4 register is: %x\n",registers[0x4]);
-                                printf("The V5 register is: %x\n",registers[0x5]);
-                                printf("The V6 register is: %x\n",registers[0x6]);
-                                printf("The V7 register is: %x\n",registers[0x7]);
-                                printf("The V8 register is: %x\n",registers[0x8]);
-                                printf("The V9 register is: %x\n",registers[0x9]);
-                                printf("The VA register is: %x\n",registers[0xA]);
-                                printf("The VB register is: %x\n",registers[0xB]);
-                                printf("The VC register is: %x\n",registers[0xC]);
-                                printf("The VD register is: %x\n",registers[0xD]);
-                                printf("The VE register is: %x\n",registers[0xE]);
-                                printf("The VF register is: %x\n",registers[0xF]);
-                                
-                                printf("\n");
-
+                                debugInfo();
 
                                 break;
                             default:
