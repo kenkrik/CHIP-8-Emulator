@@ -1,6 +1,6 @@
 # CHIP-8 emulator made with C and SDL2
-- IBM logo now renders properly
-- still need to implement remaining opcodes
+- Most programs should now render properly
+- input is not working at the moment
 ## Requirements to build:
 - a proper terminal or WSL2
 - SDL2, SDL2_image, gcc or some othe C compiler
