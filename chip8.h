@@ -8,8 +8,6 @@
 #include <SDL2/SDL.h>
 
 
-
-
 #define FONTSET_START_ADDRESS 0x50
 #define START_ADDRESS 0x200
 #define TOTAL_MEMORY 4096   //bytes
@@ -21,15 +19,17 @@
 #define SCREEN_HEIGHT 32
 
 // Debug features, 0 off, 1 on
-int debug = 1;
+int debug = 0;
 int runNextCycle = 1;
+
+
+const int FPS = 60 * 5;
 
 uint16_t address, Vx, Vy, value = 0;
 
 
 
 
-SDL_Event event;
 
 
 

@@ -61,6 +61,10 @@ int loadRom(int argc, char *argv[]) {
 
 
 
+
+
+
+
 void loadFontset() {
     for (int i = 0; i < FONTSET_SIZE; ++i) {
         memory[FONTSET_START_ADDRESS + i] = fontset[i];
@@ -68,6 +72,7 @@ void loadFontset() {
 }
 
 void debugInfo() {
+    printf("Current opcode: %X\n\n", opcode);
     printf("\nThe index register is: %x\n", IRegister);
     printf("The Vx register V%x is: %x\n",Vx, registers[Vx]);
     printf("The Vy register V%x is: %x\n",Vy, registers[Vy]);
@@ -99,88 +104,37 @@ void debugInfo() {
 
 
 }
-// Declarations
-const int windowXSize = 640;
-const int windowYSize = 320;
-int frame = 0;
-int deltaFrame = 0;
-const int FPS = 60 * 5;
-// Required lenght of one frame in order to archieve stabel FSP count
-int frameLenght = 1000 / FPS;
-int currentFrame = 0;
-
-int main(int argc, char *argv[]) {
-    // SDL
-    SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowXSize, windowYSize, SDL_WINDOW_SHOWN);
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-    SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
-    initialize();
-    loadFontset();
-    loadRom(argc, argv);
-
-
-    if (run == 0) {
-        return 0;
-    }
-
-
-    // one cycle
-    while (run == 1) {
+void handleDelay(int frameLenght, int frame, int currentFrame) {
         
-        if (debug == 1) {
-            runNextCycle = 0;
-        }
-
-        // not sure if this should be before or after pc += 2
-        opcode = memory[pc] << 8 | memory[pc + 1];
-        //printf("opcode 1 2byte: %x\n", memory[pc-2] << 8);
-        //printf("opcode 1 1byte: %x\n", memory[pc-1] << 8);
-
-        //printf("opcode fix: %x\n",opcode = memory[pc-2] << 8 | memory[pc - 1]);
-
-        // increment program counter
-        pc += 2;
-
-        // delay timer and sound timer are kinda random now and not fully implemented
-        if (delayT > 0) {
-            delayT -= 1;
-        }
-
-        if (soundT > 0) {
-            soundT -= 1;
-            // beeeep 
-        }
-
-
-
-        // Constant FPS check
-        deltaFrame = SDL_GetTicks() - frame;
+        int deltaFrame = SDL_GetTicks() - frame;
 
         if (deltaFrame < frameLenght) {
             SDL_Delay(frameLenght - deltaFrame);
         }
 
-        if ((currentFrame % 60) == 0) {
-            printf("Current frame is: %d\n", currentFrame);
+        if ((currentFrame % FPS) == 0) {
+            if (debug == 1) {
+                printf("Current frame is: %d\n\n", currentFrame);
+                
+            }
         }
 
-        currentFrame++;
-        frame = SDL_GetTicks();
 
+}
 
+void handleInput(int frameLenght, int frame, int currentFrame) {
+        
+        SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
                     run = 0;
+                    runNextCycle = 1;
                     break;
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.scancode) {
                         case SDL_SCANCODE_ESCAPE:
+                            runNextCycle = 1;
                             run = 0;
                             break;
                         case SDL_SCANCODE_RETURN:
@@ -190,6 +144,13 @@ int main(int argc, char *argv[]) {
                             else {
                                 debug = 1;
                             }
+                            runNextCycle = 1;
+                            break;
+                        case SDL_SCANCODE_N:
+                            runNextCycle = 1;
+                            break;
+                        case SDL_SCANCODE_P:
+                            debugInfo();
                             break;
                         case SDL_SCANCODE_1:
                             //runNextCycle = 1;
@@ -259,6 +220,7 @@ int main(int argc, char *argv[]) {
                         default:
                             break;
                     }
+                    break;
 
                 case SDL_KEYUP:
                     switch (event.key.keysym.scancode) {
@@ -330,14 +292,87 @@ int main(int argc, char *argv[]) {
                         default:
                             break;
                     }
-
-
-
+                    break;
 
                 default:
                     break;
             }
+            break;
         }
+        
+        handleDelay(frameLenght, frame, currentFrame);
+
+    
+}
+
+
+// Declarations
+const int windowXSize = 640;
+const int windowYSize = 320;
+int frame = 0;
+int deltaFrame = 0;
+// Required lenght of one frame in order to archieve stabel FSP count
+int frameLenght = 1000 / FPS;
+int currentFrame = 0;
+
+int main(int argc, char *argv[]) {
+    // SDL
+    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowXSize, windowYSize, SDL_WINDOW_SHOWN);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+    initialize();
+    loadFontset();
+    loadRom(argc, argv);
+
+
+    if (run == 0) {
+        return 0;
+    }
+
+
+    // one cycle
+    while (run == 1) {
+
+
+        if (debug == 1) {
+            runNextCycle = 0;
+        }
+
+        opcode = memory[pc] << 8 | memory[pc + 1];
+        //printf("opcode 1 2byte: %x\n", memory[pc-2] << 8);
+        //printf("opcode 1 1byte: %x\n", memory[pc-1] << 8);
+
+        //printf("opcode fix: %x\n",opcode = memory[pc-2] << 8 | memory[pc - 1]);
+
+        // increment program counter
+        pc += 2;
+
+        // delay timer and sound timer are kinda random now and not fully implemented
+        if (delayT > 0) {
+            delayT -= 1;
+        }
+
+        if (soundT > 0) {
+            soundT -= 1;
+            // beeeep 
+        }
+
+
+
+        // Constant FPS check
+
+
+        handleInput(frameLenght, frame, currentFrame);
+        currentFrame++;
+        frame = SDL_GetTicks();
+
+
+
 
         // fetch
 
@@ -368,8 +403,6 @@ int main(int argc, char *argv[]) {
         // Vx: 4-bit register identifier
         // Vy: 4-bit register identifier
 
-        printf("Current opcode: %X\n", opcode);
-
         switch (opcode & 0xF000) {
             // check for example for E0(fe. first opcode in 15PUZZLE)
             case 0x0000:
@@ -394,7 +427,7 @@ int main(int argc, char *argv[]) {
             case 0x1000:
                 // 0x1NNN
                 // jumps to address NNN
-                printf("NNN: %x\n", opcode & 0x0FFF);
+                //printf("NNN: %x\n", opcode & 0x0FFF);
                 address = opcode & 0x0FFF;
                 pc = address;
                 // jumps definitely shouldnt increase pc, so yes this should be pc -= 2
@@ -405,7 +438,7 @@ int main(int argc, char *argv[]) {
             case 0x2000:
                 address = opcode & 0x0FFF;
                 stack[sp] = pc;
-                printf("stack[sp]: %x\n", stack[sp]);
+                //printf("stack[sp]: %x\n", stack[sp]);
                 sp += 1;
                 pc = address;
                 break;
@@ -543,8 +576,6 @@ int main(int argc, char *argv[]) {
                         // not sure if this is the correct way to write this
                         // the 0x80 might not be necesseary?
                         registers[0xF] = (registers[Vx] & 0x80) >> 7;
-                        printf("The rg Vx shifted by 7 to the right: %x\n",registers[Vx] >> 7);
-                        printf("This opcode might not be working properly\n");
                         registers[Vx] = registers[Vx] << 1;
 
                         break;
@@ -570,9 +601,9 @@ int main(int argc, char *argv[]) {
                 // 0xANNN
                 // IRegister = NNN
                 address = opcode & 0x0FFF;
-                printf("address: %x\n", address);
+                //printf("address: %x\n", address);
                 IRegister = address;
-                printf("iregister: %x\n", IRegister);
+                //printf("iregister: %x\n", IRegister);
 
                 break;
 
@@ -658,7 +689,82 @@ int main(int argc, char *argv[]) {
             case 0xF000:
                 // this opcode is a broken mess and it needs to be rewritten 
                 switch (opcode & 0x00FF) {
-                    /*case 0x000A: 
+                    case 0x000A: 
+                        //printf("\n\n\n\n\nHandling input FX0A\n\n\n\n\n");
+                        Vx = (opcode & 0x0F00) >> 8;
+
+                        if (keypad[0])
+                        {
+                            registers[Vx] = 0;
+                        }
+                        else if (keypad[1])
+                        {
+                            registers[Vx] = 1;
+                        }
+                        else if (keypad[2])
+                        {
+                            registers[Vx] = 2;
+                        }
+                        else if (keypad[3])
+                        {
+                            registers[Vx] = 3;
+                        }
+                        else if (keypad[4])
+                        {
+                            registers[Vx] = 4;
+                        }
+                        else if (keypad[5])
+                        {
+                            registers[Vx] = 5;
+                        }
+                        else if (keypad[6])
+                        {
+                            registers[Vx] = 6;
+                        }
+                        else if (keypad[7])
+                        {
+                            registers[Vx] = 7;
+                        }
+                        else if (keypad[8])
+                        {
+                            registers[Vx] = 8;
+                        }
+                        else if (keypad[9])
+                        {
+                            registers[Vx] = 9;
+                        }
+                        else if (keypad[10])
+                        {
+                            registers[Vx] = 10;
+                        }
+                        else if (keypad[11])
+                        {
+                            registers[Vx] = 11;
+                        }
+                        else if (keypad[12])
+                        {
+                            registers[Vx] = 12;
+                        }
+                        else if (keypad[13])
+                        {
+                            registers[Vx] = 13;
+                        }
+                        else if (keypad[14])
+                        {
+                            registers[Vx] = 14;
+                        }
+                        else if (keypad[15])
+                        {
+                            registers[Vx] = 15;
+                        }
+                        else
+                        {
+                            pc -= 2;
+                        }
+                        break;
+
+
+                        /*
                         Vx = (opcode & 0x0F00) >> 8;
                         //runNextCycle = 0; 
                         //while(debug == 1) {
@@ -776,18 +882,18 @@ int main(int argc, char *argv[]) {
                     case 0x0033:
                         Vx = (opcode & 0x0F00) >> 8;
                         value = registers[Vx];
-                        printf("value in Vx%x: %d\n",Vx, registers[Vx]);
+                        //printf("value in Vx%x: %d\n",Vx, registers[Vx]);
                         // ones
                         memory[IRegister + 2] = value % 10;
-                        printf("value in memory at address I + 2 (ones): %d\n", memory[IRegister + 2]) ;
+                        //printf("value in memory at address I + 2 (ones): %d\n", memory[IRegister + 2]) ;
                         value /= 10;
                         // tens
                         memory[IRegister + 1] = value % 10;
-                        printf("value in memory at address I + 1 (tens): %d\n", memory[IRegister + 1]) ;
+                        //printf("value in memory at address I + 1 (tens): %d\n", memory[IRegister + 1]) ;
                         value /= 10;
                         // hundreds
                         memory[IRegister] = value % 10;
-                        printf("value in memory at address I + 0 (hundreds): %d\n", memory[IRegister]) ;
+                        //printf("value in memory at address I + 0 (hundreds): %d\n", memory[IRegister]) ;
 
                         //printf("IReg %x IReg + 1 %x IReg + 2 %x\n", memory[IRegister], memory[IRegister + 1], memory[IRegister + 2]) ;
                         break;
@@ -804,12 +910,12 @@ int main(int argc, char *argv[]) {
                     case 0x0065:
 
                         Vx = (opcode & 0x0F00) >> 8;
-                        printf("Fx65 vx is: %x\n", Vx);
+                        //printf("Fx65 vx is: %x\n", Vx);
                         for (int i = 0; i <= Vx; i++) {
                             registers[i] = memory[IRegister + i];
-                            printf ("memory[ireg]: %d\n", registers[i]);
+                            //printf ("memory[ireg]: %d\n", registers[i]);
                         }
-                        printf("Fx65 vx after loop is: %x\n", Vx);
+                        //printf("Fx65 vx after loop is: %x\n", Vx);
 
                         /*
                         // old games implementation
@@ -864,7 +970,6 @@ int main(int argc, char *argv[]) {
 
         }  // switch
         
-            printf("vx test: %x\n", Vx);
         //draw = 1;
         //if (draw) {
             SDL_UpdateTexture(texture, NULL, screen, screenPitch);
@@ -875,10 +980,13 @@ int main(int argc, char *argv[]) {
         //}
 
         //printf("Currently pressed keys: %d", *numkeys);
-
+        if(debug == 1) {
         debugInfo();
 
+        }
+
         while(runNextCycle != 1) {
+            /*
             while (SDL_PollEvent(&event)) {
                 switch (event.type) {
                     case SDL_QUIT:
@@ -920,13 +1028,15 @@ int main(int argc, char *argv[]) {
                 }
 
             }  
+            */
 
             SDL_UpdateTexture(texture, NULL, screen, screenPitch);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
             SDL_RenderPresent(renderer);
+            
+            handleInput(frameLenght, frame, currentFrame);
         }
-
 
     }  // while
 
