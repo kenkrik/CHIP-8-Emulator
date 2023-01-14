@@ -1,11 +1,22 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdlib.h> // malloc etc
+#include <stdlib.h> // required for malloc, etc.
 #include <time.h> 	// required for random number generation
-
-
 #include <SDL2/SDL.h>
+
+
+
+// The value of the following variables can be changed
+// Debug features, 0 off, 1 on
+int debug = 0;
+// Recommended FPS from 300 - 500
+const int FPS = 500;
+// Window size
+const int windowXSize = 1280;
+const int windowYSize = 720;
+// You propably should not change anything behind this 
+
 
 
 #define FONTSET_START_ADDRESS 0x50
@@ -18,21 +29,15 @@
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
 
-// Debug features, 0 off, 1 on
-int debug = 0;
+
+
+int frame = 0;
+int deltaFrame = 0;
+// Required lenght of one frame in order to archieve stabel FSP count
+int frameLenght = 1000 / FPS;
+int currentFrame = 0;
 int runNextCycle = 1;
-
-
-const int FPS = 60 * 5;
-
 uint16_t address, Vx, Vy, value = 0;
-
-
-
-
-
-
-
 uint8_t memory[TOTAL_MEMORY];
 // registers
 uint8_t registers[NUM_V_REGISTERS];
@@ -49,14 +54,9 @@ uint8_t delayT;
 uint8_t soundT;
 uint8_t keypad[NUM_KEYS];
 uint32_t screen[SCREEN_WIDTH * SCREEN_HEIGHT]; //using uint32_t instead of uint16_t for better sdl compatibility
-
-
-
 uint32_t screenPitch = (sizeof(screen[0]) * SCREEN_WIDTH);
 uint16_t opcode;
 char *buffer = NULL;
-uint8_t draw = 0;
-
 uint8_t fontset[FONTSET_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 	0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -75,6 +75,5 @@ uint8_t fontset[FONTSET_SIZE] = {
 	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
 	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
-
 int run = 1;
 
